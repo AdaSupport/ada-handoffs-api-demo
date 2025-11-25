@@ -4,6 +4,9 @@ This is a demo project that can be used to test a custom handoff implementation 
 
 ## Setup
 
+Loom walkthrough of the same setup steps specified in this README below:
+https://www.loom.com/share/3dd56d093ca04620bab5be14ed9cdafd
+
 ### 1. Setting up this repo
 
 First, you will need to setup your python environment. Ensure you have python 3.12 installed,
