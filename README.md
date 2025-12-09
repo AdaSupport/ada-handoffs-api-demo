@@ -98,7 +98,7 @@ Copy this value into your `.env` file from [step 1](#1-setting-up-this-repo); it
 
 Lastly, `ADA_BASE_URL` should point to the base URL for the `api` service under your bot handle's subdomain. This would be:
 
-- **Deployed Environment** — `https://<bot-handle>[.<region>].ada.support/api`
+- **Deployed Environment** — `https://<bot-handle>[.<region>].support/api`
 - **Local Dev Environment** — `http://<bot-handle>.localhost:8000`
 
 
