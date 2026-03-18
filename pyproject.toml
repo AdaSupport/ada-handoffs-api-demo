@@ -10,4 +10,5 @@ dependencies = [
     "python-dotenv >= 1.2.1",
     "svix >= 1.81.0",
     "pywebview >= 6.1",
+    "aiohttp >= 3.13.3",
 ]

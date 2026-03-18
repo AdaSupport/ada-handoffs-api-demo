@@ -26,19 +26,7 @@ async def index():
         agent_ui.add_message("human_agent", message, display_name, avatar)
         await ada_api.send_agent_message(conversation_id, display_name, avatar, message)
 
-    async def _send_system_msg():
-        if not agent_ui.as_system_checkbox.value:
-            return
-
-        text_value = agent_ui.text_input.value
-        agent_ui.text_input.value = ""
-        conversation_id = await agent_ui.get_conversation_id()
-        await ada_api.send_system_message(conversation_id, text_value)
-
     async def _send_agent_msg():
-        if agent_ui.as_system_checkbox.value:
-            return
-
         text_value = agent_ui.text_input.value
         message = TextContent(body=text_value)
         agent_ui.add_message("human_agent", message, display_name, avatar)
@@ -69,7 +57,6 @@ async def index():
     with agent_ui.chat_footer():
         agent_ui.upload_button.on_click(_upload_file)
         agent_ui.text_input.on("keydown.enter", _send_agent_msg)
-        agent_ui.text_input.on("keydown.enter", _send_system_msg)
         agent_ui.end_button.on_click(_end_handoff)
 
     agent_ui.disable_chat_inputs()

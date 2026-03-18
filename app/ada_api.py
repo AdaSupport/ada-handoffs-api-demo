@@ -50,25 +50,6 @@ async def send_agent_message(
             response.raise_for_status()
 
 
-async def send_system_message(conversation_id: str, text: str):
-    """Send a send_system_message to Ada"""
-
-    print("Sending system message...")
-    async with aiohttp.ClientSession() as session:
-        async with session.post(
-            f"{ADA_BASE_URL}/v2/conversations/{conversation_id}/messages",
-            headers={"Authorization": f"Bearer {ADA_API_KEY}"},
-            json={
-                "author": {"role": "handoff_system"},
-                "content": {"type": "text", "body": text},
-            }
-        ) as response:
-            body = await response.json()
-            print(_colorize(response.status, json.dumps(body)))
-
-            response.raise_for_status()
-
-
 async def upload_agent_file(
     conversation_id: str, filepath: str
 ) -> dict[str, Any]:
