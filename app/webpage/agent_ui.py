@@ -1,8 +1,9 @@
 import asyncio
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Self
 
 from nicegui import ui
+from nicegui.events import Handler, UploadEventArguments
 
 from app import ada_api
 from app.data.messages import FileContent, LinkContent, MessageContent, TextContent
@@ -26,6 +27,25 @@ class Message:
 
         return f"{self.display_name or default_name} ({self.role})"
 
+
+class UploadButton(ui.button):
+    _upload_element: ui.upload | None = None
+
+    def on_upload(self, handler: Handler[UploadEventArguments]) -> Self:
+        """Add a callback to be invoked when a file is uploaded. Overrides the button's on_click"""
+
+        if self._upload_element is None:
+            self._upload_element = ui.upload(auto_upload=True).classes("hidden")
+
+        self._upload_element.on_upload(handler)
+        self.on_click(lambda: self._upload_element.run_method("pickFiles"))
+
+        return self
+
+    def reset(self):
+        """Clear the upload queue"""
+        if self._upload_element:
+            self._upload_element.reset()
 
 @dataclass
 class AgentUI:
@@ -79,9 +99,9 @@ class AgentUI:
         chat_scroll.scroll_to(percent=100)
 
     @property
-    def upload_button(self) -> ui.button:
+    def upload_button(self) -> UploadButton:
         if self._upload_button is None:
-            self._upload_button = ui.button(
+            self._upload_button = UploadButton(
                 "Upload File", color="primary", icon="upload_file"
             )
         return self._upload_button

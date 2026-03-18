@@ -1,5 +1,7 @@
 import random
-from nicegui import ui, APIRouter, app
+
+from nicegui import ui, APIRouter
+from nicegui.events import UploadEventArguments
 
 from app import ada_api
 from app.data.messages import FileContent, TextContent
@@ -17,14 +19,15 @@ def _generate_name() -> str:
 
 @router.page("/")
 async def index():
-    async def _upload_file():
-        files = await app.native.main_window.create_file_dialog()
-        filepath = files[0]
+    async def _upload_file(e: UploadEventArguments):
         conversation_id = await agent_ui.get_conversation_id()
-        uploaded_file = await ada_api.upload_agent_file(conversation_id, filepath)
+        uploaded_file = await ada_api.upload_agent_file(
+            conversation_id, e.file.name, e.file.content_type, await e.file.read()
+        )
         message = FileContent(**uploaded_file)
         agent_ui.add_message("human_agent", message, display_name, avatar)
         await ada_api.send_agent_message(conversation_id, display_name, avatar, message)
+        agent_ui.upload_button.reset()
 
     async def _send_agent_msg():
         text_value = agent_ui.text_input.value
@@ -55,7 +58,7 @@ async def index():
     agent_ui.message_list_element()
 
     with agent_ui.chat_footer():
-        agent_ui.upload_button.on_click(_upload_file)
+        agent_ui.upload_button.on_upload(_upload_file)
         agent_ui.text_input.on("keydown.enter", _send_agent_msg)
         agent_ui.end_button.on_click(_end_handoff)
 

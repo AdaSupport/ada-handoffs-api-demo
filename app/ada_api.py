@@ -1,6 +1,5 @@
 from collections.abc import AsyncGenerator
 import json
-import mimetypes
 import os
 from typing import Any
 
@@ -51,28 +50,25 @@ async def send_agent_message(
 
 
 async def upload_agent_file(
-    conversation_id: str, filepath: str
+    conversation_id: str, filename: str, content_type: str, content: bytes
 ) -> dict[str, Any]:
     """Uploads a file to Ada's system"""
 
     print("Uploading file...")
     data = aiohttp.FormData()
-    mime_type = mimetypes.guess_type(filepath)
-    print(mime_type)
-    with open(filepath, "rb") as f:
-        data.add_field("file", f, filename=os.path.basename(filepath), content_type=mime_type[0])
+    data.add_field("file", content, filename=filename, content_type=content_type)
 
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                f"{ADA_BASE_URL}/v2/conversations/{conversation_id}/attachments",
-                headers={"Authorization": f"Bearer {ADA_API_KEY}"},
-                data=data,
-            ) as response:
-                body = await response.json()
-                print(_colorize(response.status, json.dumps(body)))
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            f"{ADA_BASE_URL}/v2/conversations/{conversation_id}/attachments",
+            headers={"Authorization": f"Bearer {ADA_API_KEY}"},
+            data=data,
+        ) as response:
+            body = await response.json()
+            print(_colorize(response.status, json.dumps(body)))
 
-                response.raise_for_status()
-                return body
+            response.raise_for_status()
+            return body
 
 
 async def fetch_conversation_messages(conversation_id: str) -> AsyncGenerator[dict[str, Any]]:
