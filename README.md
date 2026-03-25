@@ -41,7 +41,7 @@ Then you can start this tunnel by running `ngrok start handoffs-api-demo`.
 
 ## 2. Configuring the handoff
 
-Next we will need to configure the handoff in the AI agent dashboard. First you will need to configure a handoff flow to use
+Next we will need to configure the handoff in the AI Agent dashboard. First you will need to configure a handoff flow to use
 the HTTP request block as the triggering point for the handoff. Configure the fields for the block as follows:
 
 ![Request Block Configuration](docs/assets/request-block-configuration.png)
@@ -59,18 +59,18 @@ the HTTP request block as the triggering point for the handoff. Configure the fi
 
 ## 3. Configuring API Keys and Webhooks
 
-Next we will setup the remaining configuration to enable bidirectional communication between your AI agent and the demo repo.
+Next we will setup the remaining configuration to enable bidirectional communication between your AI Agent and the demo repo.
 To start with, create a new Platform API Key by navigating to `Platform > APIs` and create a new API key. Copy this value
 into your `.env` file you created from [step 1](#1-setting-up-this-repo); it should be set as the value for `ADA_API_KEY`.
 
-Then you will need to configure a webhook in your AI agent that will send events to this demo repo.
+Then you will need to configure a webhook in your AI Agent that will send events to this demo repo.
 
-In your AI agent dashboard, go to `Platform > Webhooks` and create a new endpoint. The URL should be `<ngrok-domain-url>/webhooks/events`
+In your AI Agent dashboard, go to `Platform > Webhooks` and create a new endpoint. The URL should be `<ngrok-domain-url>/webhooks/events`
 (e.g. `https://custom-handoff.ngrok.io/webhooks/events`), and you should subscribe to at minimum the `v1.conversation.message` and
 `v1.conversation.handoff.ended` events. Once the webhook is created, click on the Endpoint to view it, and on the right hand side,
 reveal the Signing Secret value. Copy this value into `WEBHOOK_SECRET` in your `.env` file from [step 1](#1-setting-up-this-repo).
 
-Lastly, set `ADA_BASE_URL` in your `.env` file to point to your AI agent's base URL with "/api" appended to it. This would take
+Lastly, set `ADA_BASE_URL` in your `.env` file to point to your AI Agent's base URL with "/api" appended to it. This would take
 the form `https://<ai-agent-handle>[.<region>].ada.support/api`.
 
 
@@ -83,8 +83,8 @@ With everything configured, you can now run the demo repo. Ensure you have your 
 python run.py
 ```
 
-With the repo running, go to your AI agent's chat, and trigger the handoff flow with your request block. If the handoff is
-successful, the AI agent should stop responding, and a conversation transcript should appear in the demo agent chat. Enter a message as an agent
+With the repo running, go to your AI Agent's chat, and trigger the handoff flow with your request block. If the handoff is
+successful, the AI Agent should stop responding, and a conversation transcript should appear in the demo agent chat. Enter a message as an agent
 in the chat window to connect + send the first agent message. You should be able to then chat back and forth and end the handoff just like
 any other handoff integration.
 
