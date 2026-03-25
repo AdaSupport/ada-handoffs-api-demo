@@ -2,6 +2,12 @@
 
 This is a demo project providing a minimal implementation of a custom handoff
 
+## Prerequisites
+- Python 3.12+ (`python3 --version` to check)
+- A reverse proxy solution (this README setup uses [ngrok](https://ngrok.com), but any reverse proxy is fine)
+- Access to Platform > APIs and Platform > Webhooks in your Ada AI Agent
+```
+
 ## 1. Setting up this repo
 
 First, you will need to setup your python environment. Ensure you have python 3.12 installed,
