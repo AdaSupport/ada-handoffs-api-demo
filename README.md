@@ -28,16 +28,24 @@ cp .env.example .env
 The .env file will need the correct credentials; we will fill these in later on.
 
 The last thing you will need to do is setup a reverse proxy to the service. Any reverse proxy is fine, but for
-the sake of this guide we will use ngrok. You can add the following sample reverse proxy settings to your ngrok configuration:
+the sake of this guide we will use ngrok. After installing and setting up [ngrok](https://ngrok.com), you will need
+to grab a reserved ngrok domain from your account. Login to ngrok and go to `Universal Gateway > Domains`.
+
+Here, you should either see a free dev domain if you're on a free ngrok account, or you should be able to reserve custom domains
+if you have a paid ngrok account. Note your dev/reserved domain. Then run `ngrok config edit`, and add the following
+under the `tunnels` section of the yaml config and save it:
 
 ```yaml
 handoffs-api-demo:
     addr: localhost:8090
     proto: http
-    hostname: <ngrok host domain url to reserve>
+    hostname: <your ngrok domain>
 ```
 
-Then you can start this tunnel by running `ngrok start handoffs-api-demo`.
+Then you can start this tunnel by running `ngrok start handoffs-api-demo`
+
+> [!IMPORTANT]
+> You will need to start this tunnel every time you want to run this demo repo
 
 ## 2. Configuring the handoff
 
@@ -49,7 +57,7 @@ the HTTP request block as the triggering point for the handoff. Configure the fi
 <details><summary>Alternatively you can copy and paste this blob into your handoffs flow</summary>
 
 ```json
-[{"isLoading":false,"locked":false,"reviewableMessage":false,"variableId":null,"type":"http_request_recipe","headers":{"":""},"headersList":[{"key":"","value":""}],"errorResponse":true,"isHandoff":true,"shouldPause":true,"handoffIntegrationLabel":"sandbox-handoff","requestUrl":"https://<replace-with-ngrok-domain-url>/webhooks/start-handoff","requestPayload":[{"key":"ada_conversation_id","value":"replace with @conversation_id variable","type":"string"}],"requestPayloadType":"json","requestType":"POST","variablesData":[],"successBusinessEvent":{"value":"","eventKey":"","isVariable":false}}]
+[{"isLoading":false,"locked":false,"reviewableMessage":false,"variableId":null,"type":"http_request_recipe","headers":{"":""},"headersList":[{"key":"","value":""}],"errorResponse":true,"isHandoff":true,"shouldPause":true,"handoffIntegrationLabel":"sandbox-handoff","requestUrl":"https://<replace-with-ngrok-domain>/webhooks/start-handoff","requestPayload":[{"key":"ada_conversation_id","value":"replace with @conversation_id variable","type":"string"}],"requestPayloadType":"json","requestType":"POST","variablesData":[],"successBusinessEvent":{"value":"","eventKey":"","isVariable":false}}]
 ```
 
 </details>
@@ -65,7 +73,7 @@ into your `.env` file you created from [step 1](#1-setting-up-this-repo); it sho
 
 Then you will need to configure a webhook in your AI Agent that will send events to this demo repo.
 
-In your AI Agent dashboard, go to `Platform > Webhooks` and create a new endpoint. The URL should be `<ngrok-domain-url>/webhooks/events`
+In your AI Agent dashboard, go to `Platform > Webhooks` and create a new endpoint. The URL should be `https://<ngrok-domain>/webhooks/events`
 (e.g. `https://custom-handoff.ngrok.io/webhooks/events`), and you should subscribe to at minimum the `v1.conversation.message` and
 `v1.conversation.handoff.ended` events. Once the webhook is created, click on the Endpoint to view it, and on the right hand side,
 reveal the Signing Secret value. Copy this value into `WEBHOOK_SECRET` in your `.env` file from [step 1](#1-setting-up-this-repo).
@@ -84,9 +92,13 @@ python run.py
 ```
 
 With the repo running, go to your AI Agent's chat, and trigger the handoff flow with your request block. If the handoff is
-successful, the AI Agent should stop responding, and a conversation transcript should appear in the demo agent chat. Enter a message as an agent
-in the chat window to connect + send the first agent message. You should be able to then chat back and forth and end the handoff just like
-any other handoff integration.
+successful:
+- the AI Agent will stop responding
+- a conversation transcript will appear in the demo agent chat
+- messages sent as the demo agent should forward to the end user's chat
+- messages sent by the end user should appear in the demo agent chat
+- closing the conversation from the end user's side should show a notification on the demo agent chat
+- ending the handoff from the demo agent chat should ned the handoff from the end user's chat
 
 > [!NOTE]
 > This code is for example use only, and modifications may be needed to run this code. Additionally, pull requests and/or issues for this repository will not be monitored.

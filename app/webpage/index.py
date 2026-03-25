@@ -27,7 +27,6 @@ async def index():
         message = FileContent(**uploaded_file)
         agent_ui.add_message("human_agent", message, display_name, avatar)
         await ada_api.send_agent_message(conversation_id, display_name, avatar, message)
-        agent_ui.upload_button.reset()
 
     async def _send_agent_msg():
         text_value = agent_ui.text_input.value
