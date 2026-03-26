@@ -50,7 +50,22 @@ Then you can start this tunnel by running `ngrok start handoffs-api-demo`
 ## 2. Configuring the handoff
 
 Next we will need to configure the handoff in the AI Agent dashboard. First you will need to configure a handoff flow to use
-the HTTP request block as the triggering point for the handoff. Configure the fields for the block as follows:
+the HTTP request block as the triggering point for the handoff. Follow these steps to configure the block:
+
+1. Add a **Request** block to your handoff flow.
+2. Set the **Method** to `POST`.
+3. Enter your ngrok endpoint URL in the **URL** field: `https://<your-ngrok-domain>/webhooks/start-handoff`.
+4. Under **Body Content**, add the following field:
+
+   | Key | Value | Type |
+   |-----|-------|------|
+   | `ada_conversation_id` | `@conversation_id` | string |
+
+5. Enable the **Track as Handoff** option. This tells the AI Agent to enter a handoff state when the request succeeds.
+6. Enable the **Pause conversation here until handoff ends** option. This prevents the AI Agent from responding while the handoff is active.
+7. Set the **Handoff integration label** to `custom-handoff`. This value identifies your integration in webhook events and allows you to filter webhook deliveries so this integration only receives its own events.
+
+The configured block should look like this:
 
 ![Request Block Configuration](docs/assets/request-block-configuration.png)
 
