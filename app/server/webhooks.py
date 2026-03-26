@@ -139,7 +139,7 @@ async def batch_process_events():
 
 
 async def process_message_event(event: PostMessageRequest):
-    if event.data.handoff_integration != "sandbox-handoff":
+    if event.data.handoff_integration != "custom-handoff":
         print(f"\033[90mSkipping message for integration {event.data.handoff_integration}\033[0m")
         return
 
@@ -161,7 +161,7 @@ async def process_message_event(event: PostMessageRequest):
 
 
 async def process_end_handoff_event(event: EndHandoffRequest):
-    if event.data.handoff_integration != "sandbox-handoff":
+    if event.data.handoff_integration != "custom-handoff":
         print(f"\033[90mSkipping end handoff for integration {event.data.handoff_integration}\033[0m")
         return
 

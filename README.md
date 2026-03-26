@@ -57,7 +57,7 @@ the HTTP request block as the triggering point for the handoff. Configure the fi
 <details><summary>Alternatively you can copy and paste this blob into your handoffs flow</summary>
 
 ```json
-[{"isLoading":false,"locked":false,"reviewableMessage":false,"variableId":null,"type":"http_request_recipe","headers":{"":""},"headersList":[{"key":"","value":""}],"errorResponse":true,"isHandoff":true,"shouldPause":true,"handoffIntegrationLabel":"sandbox-handoff","requestUrl":"https://<replace-with-ngrok-domain>/webhooks/start-handoff","requestPayload":[{"key":"ada_conversation_id","value":"replace with @conversation_id variable","type":"string"}],"requestPayloadType":"json","requestType":"POST","variablesData":[],"successBusinessEvent":{"value":"","eventKey":"","isVariable":false}}]
+[{"isLoading":false,"locked":false,"reviewableMessage":false,"variableId":null,"type":"http_request_recipe","headers":{"":""},"headersList":[{"key":"","value":""}],"errorResponse":true,"isHandoff":true,"shouldPause":true,"handoffIntegrationLabel":"custom-handoff","requestUrl":"https://<replace-with-ngrok-domain>/webhooks/start-handoff","requestPayload":[{"key":"ada_conversation_id","value":"replace with @conversation_id variable","type":"string"}],"requestPayloadType":"json","requestType":"POST","variablesData":[],"successBusinessEvent":{"value":"","eventKey":"","isVariable":false}}]
 ```
 
 </details>
