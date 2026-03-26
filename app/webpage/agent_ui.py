@@ -29,6 +29,11 @@ class Message:
 
 
 class UploadButton(ui.button):
+    """nicegui does not have a clean way to trigger the file picker dialogue without the `ui.upload` element
+
+    To avoid the ugly UI of the `ui.upload` element, we create a thin wrapper to couple the `ui.button` with
+    a hidden `ui.upload` element that is triggered when the button is clicked.
+    """
     _upload_element: ui.upload | None = None
 
     def on_upload(self, handler: Handler[UploadEventArguments]) -> Self:
@@ -37,21 +42,22 @@ class UploadButton(ui.button):
         if self._upload_element is None:
             self._upload_element = ui.upload(auto_upload=True).classes("hidden")
 
-        self._upload_element.on_upload(handler)
+        def _internal_handler(e: UploadEventArguments):
+            result = handler(e)
+            if self._upload_element:
+                self._upload_element.reset()
+            return result
+
+        self._upload_element.on_upload(_internal_handler)
         self.on_click(lambda: self._upload_element.run_method("pickFiles"))
 
         return self
-
-    def reset(self):
-        """Clear the upload queue"""
-        if self._upload_element:
-            self._upload_element.reset()
 
 @dataclass
 class AgentUI:
     _ada_conversation_id: str = ""
     _conversation_lock: asyncio.Lock = asyncio.Lock()
-    _upload_button: ui.button | None = None
+    _upload_button: UploadButton | None = None
     _text_input: ui.input | None = None
     _end_button: ui.button | None = None
 

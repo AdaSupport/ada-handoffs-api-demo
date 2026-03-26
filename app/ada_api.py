@@ -54,6 +54,9 @@ async def upload_agent_file(
 ) -> dict[str, Any]:
     """Uploads a file to Ada's system"""
 
+    if len(content) > 50 * 1024 * 1024:
+        raise ValueError("File size exceeds the 50MB limit")
+
     print("Uploading file...")
     data = aiohttp.FormData()
     data.add_field("file", content, filename=filename, content_type=content_type)

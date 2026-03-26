@@ -77,6 +77,11 @@ async def start_handoff(body: HandoffRequestBody):
 
 @router.post("/events", status_code=204)
 async def handle_event(msg: PostMessageRequest | EndHandoffRequest | GenericEventRequest, request: Request):
+    """Generally we want to return a success status if we've adequately consumed an event
+
+    Svix will attempt to retry any webhook events for which they receive a non-2xx response,
+    so we only return an error status if we are okay with Svix attempting a retry.
+    """
     print(f"\033[94mReceived webhook event: {msg.model_dump_json()}\033[0m")
 
     headers = request.headers
@@ -95,7 +100,7 @@ async def handle_event(msg: PostMessageRequest | EndHandoffRequest | GenericEven
 
 
 async def push_event_to_queue(event: PostMessageRequest | EndHandoffRequest):
-    """Batch events in a queue to be processed after a delay to account for unordered messages"""
+    """Batch events in a queue to be processed after a 2s delay to account for events received out of order"""
     global _global_batch_lock
 
     async with _global_batch_lock:
@@ -134,7 +139,7 @@ async def batch_process_events():
 
 
 async def process_message_event(event: PostMessageRequest):
-    if event.data.handoff_integration != "sandbox-handoff":
+    if event.data.handoff_integration != "custom-handoff":
         print(f"\033[90mSkipping message for integration {event.data.handoff_integration}\033[0m")
         return
 
@@ -156,7 +161,7 @@ async def process_message_event(event: PostMessageRequest):
 
 
 async def process_end_handoff_event(event: EndHandoffRequest):
-    if event.data.handoff_integration != "sandbox-handoff":
+    if event.data.handoff_integration != "custom-handoff":
         print(f"\033[90mSkipping end handoff for integration {event.data.handoff_integration}\033[0m")
         return
 
