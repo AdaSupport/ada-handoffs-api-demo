@@ -27,12 +27,12 @@ It should only pertain to the details documented in our [public API interface](h
 - `run.py` — Entrypoint. Loads `.env` and starts the web server
 - `app/` — Main application package
   - `__init__.py` — Configures and starts a nicegui application
-  - `ada_api.py` — HTTP client for Ada's Conversations API
+  - `ada_api.py` — HTTP client for Ada's Conversations API (messages, attachments, handoff queue status, end handoff)
   - `data/` — Data models
     - `messages.py` — Models for various Ada message content types
   - `server/` — FastAPI/NiceGUI server routes.
     - `api.py` — Registers the webhook and webpage routers.
     - `webhooks.py` — Webhook endpoints: `POST /webhooks/start-handoff` and `POST /webhooks/events` (with Svix signature verification and event batching).
   - `webpage/` — NiceGUI frontend for the agent interface.
-    - `index.py` — Main page (`/`) with chat UI, file upload, send message, and end handoff actions.
-    - `agent_ui.py` — `AgentUI` class managing chat state, message rendering, ticket lifecycle, and transcript loading.
+    - `index.py` — Main page (`/`) with chat UI, file upload, send message, report queue status, and end handoff actions.
+    - `agent_ui.py` — `AgentUI` class managing chat state, message rendering, queue status controls (position, wait time in seconds, or unknown), ticket lifecycle, and transcript loading.

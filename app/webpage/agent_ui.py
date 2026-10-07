@@ -28,6 +28,33 @@ class Message:
         return f"{self.display_name or default_name} ({self.role})"
 
 
+@dataclass(frozen=True)
+class QueueUnitSettings:
+    name: str
+    label: str | None = None
+    placeholder: str | None = None
+    min: int | None = None
+    max: int | None = None
+
+
+# Input limits mirror what the handoff queue API accepts for each unit. "unknown"
+# takes no amount, so it has no input.
+QUEUE_UNITS: dict[str, QueueUnitSettings] = {
+    "position": QueueUnitSettings(
+        name="Position", label="Queue position", placeholder="0 to 9999", min=0, max=9999
+    ),
+    "time": QueueUnitSettings(
+        name="Wait time",
+        label="Wait time (seconds)",
+        placeholder="-1 to 86400",
+        min=-1,
+        max=86400,
+    ),
+    "unknown": QueueUnitSettings(name="Unknown"),
+}
+DEFAULT_QUEUE_UNIT = "position"
+
+
 class UploadButton(ui.button):
     """nicegui does not have a clean way to trigger the file picker dialogue without the `ui.upload` element
 
@@ -60,6 +87,9 @@ class AgentUI:
     _upload_button: UploadButton | None = None
     _text_input: ui.input | None = None
     _end_button: ui.button | None = None
+    _queue_unit_toggle: ui.toggle | None = None
+    _queue_input: ui.number | None = None
+    _queue_button: ui.button | None = None
 
     def __post_init__(self) -> None:
         self._messages: list[Message] = []
@@ -130,6 +160,59 @@ class AgentUI:
             )
         return self._end_button
 
+    @property
+    def queue_unit_toggle(self) -> ui.toggle:
+        if self._queue_unit_toggle is None:
+            self._queue_unit_toggle = ui.toggle(
+                {unit: settings.name for unit, settings in QUEUE_UNITS.items()},
+                value=DEFAULT_QUEUE_UNIT,
+                on_change=lambda e: self._apply_queue_unit(e.value),
+            ).classes("items-center")
+        return self._queue_unit_toggle
+
+    @property
+    def queue_input(self) -> ui.number:
+        if self._queue_input is None:
+            self._queue_input = (
+                ui.number(precision=0)
+                .props("outlined dense")
+                .classes("w-56")
+            )
+            self._apply_queue_unit(DEFAULT_QUEUE_UNIT)
+        return self._queue_input
+
+    @property
+    def queue_button(self) -> ui.button:
+        if self._queue_button is None:
+            self._queue_button = ui.button(
+                "Update Queue", color="secondary", icon="hourglass_top"
+            )
+        return self._queue_button
+
+    def queue_controls(self) -> ui.row:
+        controls = ui.row().classes("h-12 w-full items-stretch")
+        with controls:
+            self.queue_unit_toggle
+            self.queue_input
+            self.queue_button
+        return controls
+
+    def _apply_queue_unit(self, unit: str):
+        """Match the queue input's label and limits to the selected unit"""
+
+        settings = QUEUE_UNITS[unit]
+        queue_input = self.queue_input
+        queue_input.value = None
+        queue_input.set_visibility(settings.min is not None)
+        if settings.min is None:
+            return
+
+        queue_input.set_label(settings.label)
+        queue_input._props["placeholder"] = settings.placeholder
+        queue_input.min = settings.min
+        queue_input.max = settings.max
+        queue_input.update()
+
     def chat_footer(self) -> ui.row:
         footer = ui.row().classes("h-12 w-full items-stretch")
         with footer:
@@ -143,6 +226,9 @@ class AgentUI:
         self.upload_button.enable()
         self.text_input.enable()
         self.end_button.enable()
+        self.queue_unit_toggle.enable()
+        self.queue_input.enable()
+        self.queue_button.enable()
 
     def disable_chat_inputs(self):
         self.text_input.value = ""
@@ -150,6 +236,11 @@ class AgentUI:
         self.upload_button.disable()
         self.text_input.disable()
         self.end_button.disable()
+        self.queue_unit_toggle.value = DEFAULT_QUEUE_UNIT
+        self.queue_input.value = None
+        self.queue_unit_toggle.disable()
+        self.queue_input.disable()
+        self.queue_button.disable()
 
     def add_message(
         self,

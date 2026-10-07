@@ -1,7 +1,7 @@
 from collections.abc import AsyncGenerator
 import json
 import os
-from typing import Any
+from typing import Any, Literal
 
 import aiohttp
 
@@ -98,6 +98,41 @@ async def fetch_conversation_messages(conversation_id: str) -> AsyncGenerator[di
                 page_url = body.get("meta", {}).get("next_page_url")
                 if not page_url:
                     break
+
+
+QueueUnit = Literal["position", "time", "unknown"]
+
+
+async def report_queue_status(
+    conversation_id: str, unit: QueueUnit, amount: int | None = None
+):
+    """Report the end user's place in the agent queue
+
+    Send an update whenever the queue state changes; each one replaces the last.
+    - `unit="position"`: `amount` is the place in the queue (0-9999)
+    - `unit="time"`: `amount` is the estimated wait in seconds (-1 to 86400)
+    - `unit="unknown"`: no `amount`; shows a generic waiting message
+
+    An `amount` of 0 (or -1 for time) also shows the generic waiting message.
+    """
+
+    payload: dict[str, Any] = {"unit": unit}
+    if unit != "unknown":
+        if amount is None:
+            raise ValueError(f"amount is required when unit is {unit!r}")
+        payload["amount"] = amount
+
+    print("Reporting queue status...")
+    async with aiohttp.ClientSession() as session:
+        async with session.patch(
+            f"{ADA_BASE_URL}/v2/conversations/{conversation_id}/handoff-queue",
+            headers={"Authorization": f"Bearer {ADA_API_KEY}"},
+            json=payload,
+        ) as response:
+            body = await response.json()
+            print(_colorize(response.status, json.dumps(body)))
+
+            response.raise_for_status()
 
 
 async def end_handoff(conversation_id: str):

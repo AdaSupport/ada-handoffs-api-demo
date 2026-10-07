@@ -113,6 +113,23 @@ successful:
 - messages sent by the end user should appear in the demo agent chat
 - closing the conversation from the end user's side should show a notification on the demo agent chat
 - ending the handoff from the demo agent chat should ned the handoff from the end user's chat
+- reporting a queue status from the demo agent chat should update the waiting message in the end user's chat
+
+### Reporting queue status
+
+While the end user waits for a human agent, the demo agent chat can report their place in the queue with
+`PATCH /v2/conversations/{conversation_id}/handoff-queue`. Pick a unit above the chat input, enter an amount,
+and click **Update Queue**:
+
+| Unit | Amount | Shown to the end user |
+|------|--------|-----------------------|
+| Position | Whole number from `0` to `9999` | Their place in the queue (`0` shows a generic waiting message) |
+| Wait time | Estimated wait in **seconds**, whole number from `-1` to `86400` | The wait rounded up to whole minutes (`-1` or `0` shows a generic waiting message) |
+| Unknown | None | A generic waiting message |
+
+Each update replaces the previous one. The API rejects an out-of-range amount with a `400`, and returns a `422`
+if the conversation is not on the chat channel, is not in an active handoff, or already has a human agent; the
+demo agent chat shows these errors as a notification.
 
 > [!NOTE]
 > This code is for example use only, and modifications may be needed to run this code. Additionally, pull requests and/or issues for this repository will not be monitored.
